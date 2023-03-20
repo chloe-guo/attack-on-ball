@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attack on Ball</title>
+  </head>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 100vw;
+      min-height: 100vh;
+      background: #fffff4;
+    }
+    #canvas {
+      width: 1280px;
+      height: 720px;
+      position: absolute;
+      margin: auto;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border: solid 10px #4e2e00;
+      border-radius: 10px;
+    }
+  </style>
+  <body>
+    <div id="canvas"></div>
+  </body>
+  <script>
+    let cnv;
+    let bg;
+    const floor = [];
+    const monster = [
+      [[], [], [], [], [], [], []],
+      [[], [], [], [], [], [], []],
+    ];
+    const ball = [[], [], []];
+    const TimeImg = [];
+    const TimeFrontImg = [];
+    let star = 0,
+      start = 0,
+      game = 0;
+    const die = [];
+
+    const W = 1280,
+      H = 720;
+    let floorColor = 0;
+    let monsterDirection = 0,
+      monsterTypes = 0,
+      monsterTimes = 0;
+    let monsterX = 0,
+      monsterY = 0;
+    let monsterW = 0,
+      monsterH = 0;
+    let monsterTypeChange = 0;
+    let monsterChangeTimes = 0;
+    let monsterLive = 0;
+    const ballX = [[], [], []];
+    const ballY = [[], [], []];
+    const ballVX = [[], [], []];
+    const ballVY = [[], [], []];
+    const ballA = [[], [], []];
+    const ballUseing = [[], [], []];
+    const ballSize = [];
+    const ballLowY = [];
+
+    let ballSizeRandom = 0,
+      ballColorRandom = 0;
+    let times = 0;
+    let nowtime = 0;
+    let millisecond = 0;
+
+    let TimeColor = 0;
+    let TimeFrontColor = 0;
+    let font; //Time display
+
+    let starX = 0,
+      starY = 0;
+    let starUsing = true;
+    let starTime = 0;
+
+    const dieX = [];
+    const dieY = [];
+    const dieVY = [];
+    const dieVX = [];
+    const dieVA = [];
+
+    let clickStart = false;
+
+    let composer, chop, run;
+
+    function preload() {
+      bg = loadImage("data/bg.png");
+      floor[0] = loadImage("data/floor1.png");
+      floor[1] = loadImage("data/floor2.png");
+      floor[2] = loadImage("data/floor3.png");
+      floor[3] = loadImage("data/floor4.png");
+      floor[4] = loadImage("data/floor5.png");
+      floor[5] = loadImage("data/floor6.png");
+      floor[6] = loadImage("data/floor7.png");
+
+      monster[0][0][0] = loadImage("data/100.png");
+      monster[0][0][1] = loadImage("data/101.png");
+      monster[0][1][0] = loadImage("data/110.png");
+      monster[0][1][1] = loadImage("data/111.png");
+      monster[0][2][0] = loadImage("data/120.png");
+      monster[0][2][1] = loadImage("data/121.png");
+      monster[0][3][0] = loadImage("data/130.png");
+      monster[0][3][1] = loadImage("data/131.png");
+      monster[0][4][0] = loadImage("data/140.png");
+      monster[0][4][1] = loadImage("data/141.png");
+      monster[0][5][0] = loadImage("data/150.png");
+      monster[0][5][1] = loadImage("data/151.png");
+      monster[0][6][0] = loadImage("data/160.png");
+      monster[0][6][1] = loadImage("data/161.png");
+      monster[1][0][0] = loadImage("data/200.png");
+      monster[1][0][1] = loadImage("data/201.png");
+      monster[1][1][0] = loadImage("data/210.png");
+      monster[1][1][1] = loadImage("data/211.png");
+      monster[1][2][0] = loadImage("data/220.png");
+      monster[1][2][1] = loadImage("data/221.png");
+      monster[1][3][0] = loadImage("data/230.png");
+      monster[1][3][1] = loadImage("data/231.png");
+      monster[1][4][0] = loadImage("data/240.png");
+      monster[1][4][1] = loadImage("data/241.png");
+      monster[1][5][0] = loadImage("data/250.png");
+      monster[1][5][1] = loadImage("data/251.png");
+      monster[1][6][0] = loadImage("data/260.png");
+      monster[1][6][1] = loadImage("data/261.png");
+
+      ball[0][0] = loadImage("data/big1.png");
+      ball[1][0] = loadImage("data/min1.png");
+      ball[2][0] = loadImage("data/small1.png");
+      ball[0][1] = loadImage("data/big2.png");
+      ball[1][1] = loadImage("data/min2.png");
+      ball[2][1] = loadImage("data/small2.png");
+      ball[0][2] = loadImage("data/big3.png");
+      ball[1][2] = loadImage("data/min3.png");
+      ball[2][2] = loadImage("data/small3.png");
+      ball[0][3] = loadImage("data/big4.png");
+      ball[1][3] = loadImage("data/min4.png");
+      ball[2][3] = loadImage("data/small4.png");
+      ball[0][4] = loadImage("data/big5.png");
+      ball[1][4] = loadImage("data/min5.png");
+      ball[2][4] = loadImage("data/small5.png");
+      ball[0][5] = loadImage("data/big6.png");
+      ball[1][5] = loadImage("data/min6.png");
+      ball[2][5] = loadImage("data/small6.png");
+
+      TimeImg[0] = loadImage("data/time1.png"); //TimeLINE IMG
+      TimeImg[1] = loadImage("data/time2.png");
+      TimeImg[2] = loadImage("data/time3.png");
+      TimeImg[3] = loadImage("data/time4.png");
+      TimeImg[4] = loadImage("data/time5.png");
+      TimeImg[5] = loadImage("data/time6.png");
+      TimeFrontImg[0] = loadImage("data/timefront1.png");
+      TimeFrontImg[1] = loadImage("data/timefront2.png");
+      TimeFrontImg[2] = loadImage("data/timefront3.png");
+      TimeFrontImg[3] = loadImage("data/timefront4.png");
+      TimeFrontImg[4] = loadImage("data/timefront5.png");
+      TimeFrontImg[5] = loadImage("data/timefront6.png");
+
+      star = loadImage("data/star.png");
+      start = loadImage("data/start.png");
+
+      die[0] = loadImage("data/die1.png");
+      die[1] = loadImage("data/die2.png");
+      die[2] = loadImage("data/die3.png");
+      die[3] = loadImage("data/die4.png");
+      die[4] = loadImage("data/die5.png");
+      die[5] = loadImage("data/die6.png");
+      die[6] = loadImage("data/die7.png");
+      die[7] = loadImage("data/die8.png");
+      die[8] = loadImage("data/die9.png");
+      die[9] = loadImage("data/die10.png");
+      die[10] = loadImage("data/die11.png");
+      die[11] = loadImage("data/die12.png");
+      die[12] = loadImage("data/die13.png");
+      die[13] = loadImage("data/die14.png");
+      die[14] = loadImage("data/die15.png");
+      die[15] = loadImage("data/die16.png");
+
+      font = loadFont("data/Gaegu-Bold.ttf");
+
+      soundFormats("mp3");
+      composer = loadSound("data/composer.mp3");
+      chop = loadSound("data/chop.mp3");
+      run = loadSound("data/running.mp3");
+    }
+
+    function floorRandom() {
+      if (int(millisecond) % 5 == 0) {
+        floorColor = int(random(0, 6));
+        TimeColor = int(random(0, 6));
+      }
+      TimeCount += 0.12;
+      TimeX += 7.0;
+    }
+
+    function setMonster() {
+      monsterDirection = 0;
+      monsterTypes = 0;
+      monsterTimes = 0;
+      monsterX = W / 2 - 100 / 2;
+      monsterY = H - 220;
+      monsterTypeChange = false;
+      monsterW = 132;
+      monsterH = 120;
+      monsterLive = true;
+    }
+
+    function moveMonster() {
+      if (monsterDirection == 0 && monsterTypes >= 2) {
+        if (monsterX > 0) monsterX -= 10;
+      }
+      if (monsterDirection == 1 && monsterTypes >= 2) {
+        if (monsterX < W - monsterW) monsterX += 10;
+      }
+    }
+
+    function drawMonster() {
+      if (monsterLive == true) {
+        image(
+          monster[monsterDirection][monsterTypes][monsterTimes],
+          monsterX,
+          monsterY
+        );
+        monsterChangeTimes++;
+        if (monsterChangeTimes % 6 == 0) {
+          if (monsterTimes == 0) {
+            monsterTimes = 1;
+          } else monsterTimes = 0;
+        }
+      }
+    }
+
+    function setball() {
+      times = 0;
+      nowtime = 0;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 6; j++) {
+          ballUseing[i][j] = false;
+          if (j % 2 == 0) ballX[i][j] = -250;
+          else ballX[i][j] = 1028;
+        }
+      }
+      ballSize[0] = 250;
+      ballSize[1] = 185;
+      ballSize[2] = 115;
+      ballLowY[0] = 191;
+      ballLowY[1] = 158.5;
+      ballLowY[2] = 123.5;
+    }
+
+    function ballRandom() {
+      if (millisecond - nowtime > 500) {
+        nowtime = millisecond;
+        ballSizeRandom = int(random(0, 3));
+        ballColorRandom = int(random(0, 6));
+        if (ballUseing[ballSizeRandom][ballColorRandom] == false) {
+          ballUseing[ballSizeRandom][ballColorRandom] = true;
+          ballY[ballSizeRandom][ballColorRandom] = random(50, 400);
+          ballVX[ballSizeRandom][ballColorRandom] = random(5, 10);
+          ballVY[ballSizeRandom][ballColorRandom] = random(18, 22);
+          ballA[ballSizeRandom][ballColorRandom] = random(0.6, 1);
+        }
+      }
+    }
+
+    function drawBall() {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 6; j++) {
+          if (ballUseing[i][j] == true) {
+            image(ball[i][j], ballX[i][j], ballY[i][j]);
+            if (j % 2 == 0) {
+              ballX[i][j] += ballVX[i][j];
+            } else ballX[i][j] -= ballVX[i][j];
+            ballY[i][j] += ballVY[i][j];
+            ballVY[i][j] += ballA[i][j];
+          }
+          if (ballY[i][j] > 640 - ballSize[i]) {
+            ballVY[i][j] *= -1;
+          }
+          if (j % 2 == 0) {
+            if (ballX[i][j] > W) {
+              ballUseing[i][j] = false;
+              ballX[i][j] = -250;
+            }
+          } else {
+            if (ballX[i][j] < -250) {
+              ballUseing[i][j] = false;
+              ballX[i][j] = 1028;
+            }
+          }
+        }
+      }
+    }
+
+    function LiveMonster() {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 6; j++) {
+          if (
+            monsterLive == true &&
+            dist(
+              ballX[i][j] + ballSize[i] / 2,
+              ballY[i][j] + ballSize[i] / 2,
+              monsterX + monsterW / 2,
+              monsterY + monsterH / 2
+            ) <=
+              ballLowY[i] / 2
+          ) {
+            monsterLive = false;
+            if (composer.isPlaying()) {
+              composer.stop();
+            }
+            if (!chop.isPlaying()) {
+              chop.play();
+            }
+            for (let k = 0; k < 16; k++) {
+              dieX[k] = monsterX + monsterW / 2;
+              dieY[k] = monsterY + monsterH - 100;
+            }
+          }
+        }
+      }
+    }
+
+    function timeRandom() {
+      if (millisecond % 5 == 0) {
+        TimeFrontColor = int(random(0, 6));
+      }
+    }
+
+    let TimeX = 50;
+    let TimeCount = 0;
+    let Delay = 0;
+    let T = false;
+    function TimeLine() {
+      //timeDisplay
+      textFont(font, 40);
+      fill(54, 17, 3);
+
+      image(TimeFrontImg[TimeFrontColor], TimeX - 1280, 0);
+      image(TimeImg[TimeColor], TimeX - 1280, 0);
+      text(Math.round(TimeCount * 100) / 100, TimeX + 10, 50);
+      if (monsterLive == true) {
+        if (TimeX > 1280) {
+          TimeX = 0;
+        } else {
+          TimeX += 3.5;
+          TimeCount += 0.06;
+          Delay += 0.06;
+        }
+      }
+    }
+    function fallStar() {
+      starTime++;
+      if (starUsing == true && starTime == 80) {
+        starUsing = false;
+        starX = random(200, 1080);
+        starY = 0;
+      }
+      if (starTime == 400) {
+        T = false;
+      }
+      if (
+        starUsing == false &&
+        dist(
+          starX + 30,
+          starY + 60,
+          monsterX + monsterW / 2,
+          monsterY + monsterH
+        ) <=
+          monsterW / 2 + 30
+      ) {
+        starUsing = true;
+        starTime = 0;
+        T = true;
+      }
+      if (starUsing == false) {
+        image(star, starX, starY);
+        if (starY < H - 160) {
+          starY += 20;
+        }
+      }
+    }
+
+    function setDie() {
+      for (let i = 0; i < 16; i++) {
+        dieVX[i] = random(-10, 10);
+        dieVY[i] = random(-10, -5);
+        dieVA[i] = random(0.5, 0.8);
+      }
+    }
+
+    function dieMonster() {
+      for (let i = 0; i < 16; i++) {
+        image(die[i], dieX[i], dieY[i]);
+        if (dieY[i] < monsterY + monsterH - 30) {
+          dieX[i] += dieVX[i];
+          dieY[i] += dieVY[i];
+          dieVY[i] += dieVA[i];
+        }
+      }
+    }
+
+    function startgame() {
+      textFont(font, 120);
+      fill(161, 12, 1);
+      text("ATTACK ON BALL", W / 2 - 440, H / 2 - 140);
+      image(start, W / 2 - 275 / 2, H / 2 - 80);
+    }
+
+    function showScore() {
+      textFont(font, 80);
+      fill(0, 125, 255);
+
+      text("Your score: ", W / 2 - 300, H / 2);
+      text(Math.round(TimeCount * 100) / 100, W / 2 + 80, H / 2);
+    }
+
+    function setup() {
+      cnv = createCanvas(W, H);
+      cnv.parent("canvas");
+      floorRandom();
+      setMonster();
+      setball();
+      setDie();
+    }
+
+    function draw() {
+      millisecond = millis();
+      background(bg);
+      image(floor[floorColor], 0, 0);
+      if (clickStart == true) {
+        fallStar();
+        if (monsterLive == true) {
+          if (!composer.isPlaying()) {
+            composer.play(0, 1, 0.025);
+          }
+          moveMonster();
+          drawMonster();
+          ballRandom();
+          timeRandom();
+          if (T) {
+            floorRandom();
+          }
+        } else {
+          dieMonster();
+          starTime = 0;
+          showScore();
+        }
+        drawBall();
+        TimeLine();
+        LiveMonster();
+      } else startgame();
+    }
+
+    function keyPressed() {
+      if (keyCode == LEFT_ARROW) {
+        monsterDirection = 0;
+        if (monsterLive == true) {
+          run.play(0, 1.5);
+        }
+        if (T) {
+          monsterTypes = 6;
+        } else {
+          monsterTypes = 1;
+        }
+      }
+      if (keyCode == RIGHT_ARROW) {
+        monsterDirection = 1;
+        if (monsterLive == true) {
+          run.play(0, 1.5);
+        }
+        if (T) {
+          monsterTypes = 6;
+        } else {
+          monsterTypes = 1;
+        }
+      }
+
+      if (monsterTypeChange == false) {
+        monsterTypeChange = true;
+        monsterTypes = int(random(2, 6));
+      }
+    }
+
+    function keyReleased() {
+      if (monsterTypeChange == true) {
+        monsterTypeChange = false;
+        if (run.isPlaying()) {
+          run.pause();
+        }
+      }
+      monsterTypes = 0;
+    }
+
+    function mouseClicked() {
+      if (dist(W / 2, H / 2, mouseX, mouseY) <= 275 / 2) {
+        clickStart = true;
+      }
+    }
+
+    onkeydown = (event) => {
+      event.preventDefault();
+    };
+  </script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"
+    integrity="sha512-3RlxD1bW34eFKPwj9gUXEWtdSMC59QqIqHnD8O/NoTwSJhgxRizdcFVQhUMFyTp5RwLTDL0Lbcqtl8b7bFAzog=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"
+    integrity="sha512-WzkwpdWEMAY/W8WvP9KS2/VI6zkgejR4/KTxTl4qHx0utqeyVE0JY+S1DlMuxDChC7x0oXtk/ESji6a0lP/Tdg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+</html>
