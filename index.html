@@ -68,13 +68,13 @@
     const ballA = [[], [], []];
     const ballUseing = [[], [], []];
     const ballSize = [];
-    const ballLowY = [];
 
     let ballSizeRandom = 0,
       ballColorRandom = 0;
     let times = 0;
     let nowtime = 0;
     let millisecond = 0;
+    let bonusTime = 0;
 
     let TimeColor = 0;
     let TimeFrontColor = 0;
@@ -195,7 +195,11 @@
     }
 
     function floorRandom() {
-      if (int(millisecond) % 5 == 0) {
+      if (bonusTime == 0) {
+        bonusTime = 25;
+      }
+      if (int(millisecond) % 10 == 0) {
+        bonusTime--;
         floorColor = int(random(0, 6));
         TimeColor = int(random(0, 6));
       }
@@ -253,9 +257,6 @@
       ballSize[0] = 250;
       ballSize[1] = 185;
       ballSize[2] = 115;
-      ballLowY[0] = 191;
-      ballLowY[1] = 158.5;
-      ballLowY[2] = 123.5;
     }
 
     function ballRandom() {
@@ -313,7 +314,7 @@
               monsterX + monsterW / 2,
               monsterY + monsterH / 2
             ) <=
-              ballLowY[i] / 2
+              ballSize[i] / 2
           ) {
             monsterLive = false;
             if (composer.isPlaying()) {
@@ -483,6 +484,13 @@
           monsterTypes = 6;
         } else {
           monsterTypes = 1;
+        }
+      }
+      if (keyCode == ENTER) {
+        if (clickStart) {
+          location.reload();
+        } else {
+          clickStart = true;
         }
       }
 
